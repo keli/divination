@@ -144,5 +144,5 @@ with col2:
 st.markdown("""---""")
 st.subheader("卦象详解")
 components.iframe(f"https://m.k366.com/gua/{hexagram_idx+1}.htm",
-                  height=800,
+                  height=1600,
                   scrolling=True)
