@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import json
 
 trigrams = ['☰', '☱', '☲', '☳', '☴', '☵', '☶', '☷']
@@ -137,5 +138,11 @@ with col2:
     for line in hexagram_data[hexagram_idx2]['yao-detail']:
         st.markdown(line)
 
-st.link_button(f"查看详解（变卦详见{moving_lines[moving_line_idx]}爻）",
-               f"https://m.k366.com/gua/{hexagram_idx+1}.htm")
+# st.link_button(f"查看详解（变卦详见{moving_lines[moving_line_idx]}爻）",
+#                f"https://m.k366.com/gua/{hexagram_idx+1}.htm")
+
+st.markdown("""---""")
+st.subheader("卦象详解")
+components.iframe(f"https://m.k366.com/gua/{hexagram_idx+1}.htm",
+                  height=800,
+                  scrolling=True)
