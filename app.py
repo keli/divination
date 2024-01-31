@@ -50,6 +50,7 @@ def normalize(n):
         return n
 
 
+st.set_page_config(page_title='简易算卦', page_icon="☯")
 st.title("简易算卦")
 
 with open('gua.json', 'r') as f:
