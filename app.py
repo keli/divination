@@ -2,6 +2,8 @@ import streamlit as st
 import json
 import urllib.parse
 import random
+from datetime import datetime
+from lunar_python import Lunar, Solar
 
 trigrams = ["☰", "☱", "☲", "☳", "☴", "☵", "☶", "☷"]
 trigram_names = ["乾", "兑", "离", "震", "巽", "坎", "艮", "坤"]
@@ -291,9 +293,26 @@ with col2:
 
 st.markdown("""---""")
 
+# 获取当前日期信息
+now = datetime.now()
+gregorian_date = now.strftime("%Y年%m月%d日")
+try:
+    solar = Solar.fromDate(now)
+    lunar = solar.getLunar()
+    # 使用天干地支表示年份
+    lunar_year = lunar.getYearInGanZhi()  # 天干地支年份
+    lunar_month = lunar.getMonthInChinese()  # 农历月份
+    lunar_day = lunar.getDayInChinese()  # 农历日期
+    lunar_date = f"{lunar_year}年{lunar_month}月{lunar_day}"
+    date_info = f"起卦时间：公历 {gregorian_date}，农历 {lunar_date}"
+except Exception as e:
+    print(f"农历信息获取失败: {e}")
+    date_info = f"起卦时间：公历 {gregorian_date}"
+
 # 构建解卦提示词
 prompt = f"""请帮我解读这个周易卦象：
 
+{date_info}
 起卦事由：{reason}
 
 本卦：第{hexagram_idx + 1}卦 {hexagram_data[hexagram_idx]["gua-name"]}卦 {hexagrams[hexagram_idx]}
@@ -311,19 +330,36 @@ prompt = f"""请帮我解读这个周易卦象：
 # URL 编码提示词
 encoded_prompt = urllib.parse.quote(prompt)
 
-# AI 网站选项
+# AI 网站选项（Claude 和通义千问支持 q 参数）
 ai_options = {
-    "DeepSeek": f"https://chat.deepseek.com/?q={encoded_prompt}",
-    "ChatGPT": f"https://chatgpt.com/?q={encoded_prompt}",
+    "DeepSeek": "https://chat.deepseek.com/",
+    "ChatGPT": "https://chatgpt.com/",
     "Claude": f"https://claude.ai/new?q={encoded_prompt}",
-    "Kimi": f"https://kimi.moonshot.cn/?q={encoded_prompt}",
+    "Grok": "https://x.com/i/grok",
+    "Kimi": "https://kimi.moonshot.cn/",
     "通义千问": f"https://tongyi.aliyun.com/qianwen/?q={encoded_prompt}",
 }
 
 st.subheader("AI 解卦")
-st.write("选择 AI 工具解读卦象：")
 
-cols = st.columns(len(ai_options))
-for idx, (ai_name, ai_url) in enumerate(ai_options.items()):
+# 推荐的 AI (支持自动填入提示词并提交)
+st.write("**推荐使用(点击即可自动解卦):**")
+st.link_button(
+    "✨ 通义千问 (推荐)",
+    ai_options["通义千问"],
+    type="primary",
+    use_container_width=True,
+)
+
+st.write("其他 AI 工具(需手动复制下方提示词):")
+
+# 使用 st.code 显示提示词，右上角自带复制按钮
+st.code(prompt, language=None)
+
+# 其他 AI 选项，Claude 放第一个
+other_ai_order = ["Claude", "DeepSeek", "ChatGPT", "Grok", "Kimi"]
+other_ai_options = {k: ai_options[k] for k in other_ai_order if k in ai_options}
+cols = st.columns(len(other_ai_options))
+for idx, (ai_name, ai_url) in enumerate(other_ai_options.items()):
     with cols[idx]:
         st.link_button(ai_name, ai_url, use_container_width=True)
