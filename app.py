@@ -172,8 +172,8 @@ def normalize(n):
         return n
 
 
-st.set_page_config(page_title="简易算卦", page_icon="☯")
-st.title("简易算卦")
+st.set_page_config(page_title="易问", page_icon="☯")
+st.title("易问")
 
 with open("gua.json", "r") as f:
     data = json.load(f)
